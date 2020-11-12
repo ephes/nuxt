@@ -1,0 +1,79 @@
+- hosts: staging
+  vars:
+    user: nuxt
+    repository_name: "{{ user }}"
+
+  tasks:
+    - include_vars: secrets.yml
+
+    - debug:
+        msg: Variables are set? {{ user }} {{ repository_name }}
+
+    - name: Add nodejs signing key - do not download if present
+      apt_key:
+        id: 9FD3B784BC1C6FC31A8A0A1C1655A0AB68576280
+        url: https://deb.nodesource.com/gpgkey/nodesource.gpg.key
+        state: present
+
+    - name: Add nodejs repository
+      apt_repository:
+        repo: deb https://deb.nodesource.com/node_15.x buster main
+        state: present
+
+    - name: Add yarn signing key - do not download if present
+      apt_key:
+        id: 72ECF46A56B4AD39C907BBB71646B01B86E50310
+        url: https://dl.yarnpkg.com/debian/pubkey.gpg
+        state: present
+
+    - name: Add yarn repository
+      apt_repository:
+        repo: deb https://dl.yarnpkg.com/debian/ stable main
+        state: present
+
+    - name: Install required build packages
+      apt:
+        name: ["git", "yarn", "nodejs"]
+
+    - name: Add the user "{{ user }}" with a bash shell
+      user:
+        name: "{{ user }}"
+        shell: /bin/bash
+
+    - name: Git checkout repository
+      git:
+        repo: "https://github.com/ephes/{{ repository_name }}"
+        dest: "/home/{{ user }}/site"
+      become: true
+      become_user: "{{ user }}"
+
+    - name: Install required packages
+      shell: yarn install
+      args:
+        chdir: "/home/{{ user }}/site"
+      become: true
+      become_user: "{{ user }}"
+
+    - name: Build nuxt app
+      shell: yarn build
+      args:
+        chdir: "/home/{{ user }}/site"
+      become: true
+      become_user: "{{ user }}"
+
+    - name: Create a symbolic link for systemd service
+      file:
+        src: /home/nuxt/site/nuxt.service
+        dest: /etc/systemd/system/nuxt.service
+        state: link
+
+    - name: Make sure nuxt service is running
+      systemd:
+        state: restarted
+        name: nuxt
+
+    - name: Create a symbolic link for traefik loadbalancer
+      file:
+        src: "/home/{{ user }}/site/{{ user }}.traefik.yml"
+        dest: "/etc/traefik/dynamic/{{ user }}.traefik.yml"
+        state: link
