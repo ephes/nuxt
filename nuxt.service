@@ -1,0 +1,14 @@
+# Contents of /etc/systemd/system/multi-user.target.wants/cast.service
+[Unit]
+Description=Nuxt-Textproject
+After=network.target
+
+[Service]
+Type=simple
+Restart=always
+WorkingDirectory=/home/nuxt/site
+User=nuxt
+ExecStart=/home/nuxt/site/nuxt_start.sh
+
+[Install]
+WantedBy=multi-user.target
