@@ -1,3 +1,3 @@
 #!/bin/bash
 cd /home/nuxt/site
-yarn start
+yarn start --hostname nuxt.django-cast.com
