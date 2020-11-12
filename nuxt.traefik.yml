@@ -1,0 +1,37 @@
+http:
+  routers:
+    web-router:
+      rule: "Host(`nuxt.django-cast.com`) || Host(`www.nuxt.django-cast.com`)"
+
+      entryPoints:
+        - web
+      middlewares:
+        - redirect
+        - csrf
+      service: nuxt
+
+    web-secure-router:
+      rule: "Host(`nuxt.django-cast.com`) || Host(`www.nuxt.django-cast.com`)"
+
+      entryPoints:
+        - web-secure
+      middlewares:
+        - csrf
+      service: nuxt
+      tls:
+        certResolver: letsencrypt
+
+  middlewares:
+    redirect:
+      redirectScheme:
+        scheme: https
+        permanent: true
+    csrf:
+      headers:
+        hostsProxyHeaders: ["X-CSRFToken"]
+
+  services:
+    django:
+      loadBalancer:
+        servers:
+          - url: http://localhost:3000
