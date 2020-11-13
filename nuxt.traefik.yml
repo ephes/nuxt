@@ -1,7 +1,7 @@
 http:
   routers:
-    web-router:
-      rule: "Host(`nuxt.django-cast.com`) || Host(`www.nuxt.django-cast.com`)"
+    nuxt-router:
+      rule: "Host(`nuxt.django-cast.com`)"
 
       entryPoints:
         - web
@@ -10,8 +10,8 @@ http:
         - csrf
       service: nuxt
 
-    web-secure-router:
-      rule: "Host(`nuxt.django-cast.com`) || Host(`www.nuxt.django-cast.com`)"
+    nuxt-secure-router:
+      rule: "Host(`nuxt.django-cast.com`)"
 
       entryPoints:
         - web-secure
