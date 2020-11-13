@@ -31,7 +31,7 @@ http:
         hostsProxyHeaders: ["X-CSRFToken"]
 
   services:
-    django:
+    nuxt:
       loadBalancer:
         servers:
           - url: http://localhost:3000
